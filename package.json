@@ -1,0 +1,24 @@
+{
+  "name": "at-obs-overlay",
+  "version": "0.0.1",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "test": "tsc && node out/test-server/test-server",
+    "proxy": "tsc && node out/proxy-server/proxy-server",
+    "start": "open src/basic-test/index.html",
+    "start:windows": "start src/basic-test/index.html"
+  },
+  "keywords": [
+    "audio trip"
+  ],
+  "author": "If it works ... nah, we miss Paul, though.",
+  "license": "ISC",
+  "devDependencies": {
+    "@hn3000/ats-types": "github:hn3000/ats-types#next",
+    "@types/node": "^16.11.6",
+    "express": "^4.17.1",
+    "typescript": "^4.4.4",
+    "ws": "^7.5.5"
+  }
+}

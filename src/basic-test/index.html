@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="description" 
+    content="Drag this file into your browser for a simple demonstration of the Audio Trip WebSocket Server"
+    >
+    <script>
+      // config
+      const DEFAULT_ADDRESS = '127.0.0.1:48998';
+
+      // 127.0.0.1:48998 -- default Audio Trip websocket on Windows
+      // other IP/Port combinations depending on what you put in StatServer.cfg
+      const url = new URL(document.location);
+      const address = url.searchParams.get("address") || DEFAULT_ADDRESS;
+      const wsUrl = validUrl(`ws://${address}/websocket`);
+      const WS_URL = wsUrl || `ws://127.0.0.1:48998/websocket`;
+
+/* nothing user-serviceable below -- well, go ahead, but if you break it it's yours*/
+      function validUrl(maybeUrl) {
+        if (null == maybeUrl) {
+          return null;
+        }
+        try {
+          const result = new URL(maybeUrl);
+
+          return result.toString();
+        } catch (x) {
+          setTimeout(function printException() {
+            const dbgOut = document.getElementById('debug');
+            dbgOut.innerHTML = 'Got Exception when parsing URL: '+x+'<br>';
+          }, 100);
+        }
+        return ;
+      }
+    </script>
+    <style>
+      body {
+        background: darkgray;
+        margin: 50px auto;
+        width: 50%;
+        min-width: 500px;
+      }
+      h1, div {
+        font-weight: 600;
+        color: cyan;
+        text-shadow: 1px 1px 7px black, 0px 0px 27px black;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Audio Trip Play Status Test</h1>
+    <div>
+      <form>
+        <p>This page tries to connect to the Audio Trip WebSocket server at 
+          <span id="address"></span>.
+        </p>
+        <p>
+          To change the address, add "?address=192.168.2.17:48998" to the URL
+          of this page. 
+          Replace "192.168.2.17" with your Quest's IP address.
+        </p>
+        <small>
+          You can find the Quest's IP address in the title bar of SideQuest or 
+          in the Wifi Settings on the Quest:<br>
+          Open Quick Settings, select Wifi,
+          click your connected Wifi network, scroll down, open the Advanced
+          section, scroll down some more; it's under the Heading "IP Address".
+        </small>
+      </form>
+    </div>
+    <div><pre><code id="debug"></code></pre></div>
+    <div><pre><code id="output">-output here-</code></pre></div>
+    <script>
+      document.getElementById('address').appendChild(document.createTextNode(WS_URL));
+
+      const output = document.getElementById('output');
+      let ws = connect();
+
+      function renderMessage(ev) {
+        let msg = "";
+        try {
+          msg = (ev.data && JSON.parse(ev.data)) || ev;
+          //console.log(msg);
+        } catch (x) {
+          msg = `caught exception: ${x}`;
+          console.log(x);
+          console.log(ev.data);
+        }
+        const text = JSON.stringify(msg, null, 2);
+        const textNode = document.createTextNode(text);
+        output.replaceChild(textNode, output.childNodes.item(0));
+      }
+
+      function renderError(ev) {
+        console.log(ev);
+        const text = JSON.stringify(ev.type, null, 2);
+        const textNode = document.createTextNode(text);
+        output.replaceChild(textNode, output.childNodes.item(0));
+        if (null != ws) {
+          ws.close(1000);
+          setTimeout(() => { ws = connect() }, 500);
+          ws = null;
+        }
+      }
+
+      function connect() {
+        const wsl = new WebSocket(WS_URL);
+        wsl.onmessage = renderMessage;
+        wsl.onerror = renderError;
+        wsl.onclose = renderError;
+        wsl.onopen = renderMessage;
+        const textNode = document.createTextNode("... connecting ...");
+        output.replaceChild(textNode, output.childNodes.item(0));
+        return wsl;
+      }
+    </script>
+  </body>
+</html>
