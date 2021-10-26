@@ -13,7 +13,7 @@ import * as http from 'http';
 
 import WebSocket from 'ws';
 
-import { IStatsServerSongInfo, PlayerStatus, StatsServerPayload, TripType } from '@hn3000/ats-types';
+import { IStatsServerSongInfo, StatsServerPayload } from '@hn3000/ats-types';
 
 const app = express();
 const server = http.createServer(app);
@@ -33,7 +33,7 @@ function addClient(ws: WebSocket) {
 function removeClient(ws: WebSocket) {
   let oldCount = clients.length;
   clients = clients.filter(x => x !== ws);
-  console.info(`removed client, now got ${clients.length} (from ${clients.length})`);
+  console.info(`removed client, now got ${clients.length} (from ${oldCount})`);
 }
 
 
