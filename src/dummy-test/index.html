@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="description" 
+    content="Drag this file into your browser for a simple self-updating test page."
+    >
+    <script>
+      const rate = 0.1; // time between updates in seconds
+    </script>
+    <style>
+      body {
+        background: darkgray;
+        margin: 50px auto;
+        width: 50%;
+        min-width: 500px;
+      }
+      h1, div {
+        font-weight: 600;
+        color: cyan;
+        text-shadow: 1px 1px 7px black, 0px 0px 27px black;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Audio Trip Play Status Test</h1>
+    <div>
+      <form>
+        <p>This page just displays some random nonsense every <span id="rate"></span> seconds.
+        </p>
+      </form>
+    </div>
+    <div><pre><code id="debug"></code></pre></div>
+    <div><pre><code id="output">-output here-</code></pre></div>
+    <script>
+      document.getElementById('rate').append(`${rate.toFixed(2)}`);
+      const output = document.getElementById('output');
+      let ws = connect_dummy();
+
+      function renderMessage(ev) {
+        let msg = "";
+        try {
+          msg = (ev.data && JSON.parse(ev.data)) || ev;
+          //console.log(msg);
+        } catch (x) {
+          msg = `caught exception: ${x}`;
+          console.log(x);
+          console.log(ev.data);
+        }
+        const text = JSON.stringify(msg, null, 2);
+        const textNode = document.createTextNode(text);
+        output.replaceChild(textNode, output.childNodes.item(0));
+      }
+
+      function renderError(ev) {
+        console.log(ev);
+        const text = JSON.stringify(ev.type, null, 2);
+        const textNode = document.createTextNode(text);
+        output.replaceChild(textNode, output.childNodes.item(0));
+        if (null != ws) {
+          ws.close(1000);
+          setTimeout(() => { ws = connect() }, 500);
+          ws = null;
+        }
+      }
+
+      function connect_dummy() {
+        const textNode = document.createTextNode("... connecting ...");
+        output.replaceChild(textNode, output.childNodes.item(0));
+        let counter = 0;
+        const wsl = {
+          stop: function() {
+            clearTimeout(wsl.timer);
+          },
+          update: function() {
+            renderMessage({
+              data: JSON.stringify(
+                {
+                  text: 'Lorem Ipsum',
+                  random: Math.random(),
+                  counter
+                }
+              )
+            });
+            ++counter;
+            wsl.timer = setTimeout(wsl.update, 1000*rate);
+          }
+        }
+        wsl.timer = setTimeout(wsl.update, 1000*rate*10);
+        return wsl;
+      }
+    </script>
+  </body>
+</html>
