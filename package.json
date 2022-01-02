@@ -6,13 +6,14 @@
   "scripts": {
     "test": "tsc && node out/test-server/test-server",
     "proxy": "tsc && node out/proxy-server/proxy-server",
+    "recorder": "tsc && node out/stat-recorder/stat-recorder",
     "start": "open src/basic-test/index.html",
     "start:windows": "start src/basic-test/index.html"
   },
   "keywords": [
     "audio trip"
   ],
-  "author": "If it works ... nah, we miss Paul, though.",
+  "author": "If this code works, it was written by ... no, but we miss Paul.",
   "license": "ISC",
   "devDependencies": {
     "@hn3000/ats-types": "github:hn3000/ats-types#next",
